@@ -1,0 +1,32 @@
+<h1>Match Results</h1>
+{% if matches %}
+    <h2>Summoner: {{ summoner.name }}</h2>
+    <ul>
+        {% for match in matches %}
+            {% if match.info %}
+                <li>
+                    <h3>Match ID: {{ match.metadata.matchId }}</h3>
+                    <p>Game Duration: {{ match.info.gameDuration }} seconds</p>
+                    <p>Queue Type: {{ match.info.queueId }}</p>
+                    <ul>
+                        {% for participant in match.info.participants %}
+                            {% if participant.puuid == summoner.puuid %}
+                                <li>
+                                    Champion: {{ participant.championName }}<br>
+                                    KDA: {{ participant.kills }}/{{ participant.deaths }}/{{ participant.assists }}<br>
+                                    Damage Dealt: {{ participant.totalDamageDealtToChampions }}
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                </li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No matches found.</p>
+{% endif %}
+
+{% if error %}
+    <p class="error">{{ error }}</p>
+{% endif %}
