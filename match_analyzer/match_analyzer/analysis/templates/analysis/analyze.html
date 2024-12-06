@@ -1,9 +1,24 @@
-<h1>Analyze Matches</h1>
-{% if error %}
-    <p style="color: red;">{{ error }}</p>
-{% endif %}
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Analyze</button>
-</form>
+<!-- analysis/templates/analysis/analyze.html -->
+{% extends 'analysis/base.html' %}
+
+{% block content %}
+<div class="form-container">
+    <h1>Analyze Matches</h1>
+    {% if error %}
+        <div class="error-message">{{ error }}</div>
+    {% endif %}
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="{{ form.summoner_name.id_for_label }}">{{ form.summoner_name.label }}</label>
+            {{ form.summoner_name }}
+            <small>{{ form.summoner_name.help_text }}</small>
+        </div>
+        <div class="form-group">
+            <label for="{{ form.region.id_for_label }}">{{ form.region.label }}</label>
+            {{ form.region }}
+        </div>
+        <button type="submit">Analyze</button>
+    </form>
+</div>
+{% endblock %}

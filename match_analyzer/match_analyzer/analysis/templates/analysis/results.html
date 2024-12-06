@@ -1,32 +1,48 @@
-<h1>Match Results</h1>
+<!-- analysis/templates/analysis/results.html -->
+{% extends 'analysis/base.html' %}
+{% load match_filters %}
+
+{% block content %}
+<div class="summoner-info">
+    <h2>{{ summoner.name }}</h2>
+    <p>Level {{ summoner.summonerLevel }}</p>
+</div>
+
 {% if matches %}
-    <h2>Summoner: {{ summoner.name }}</h2>
-    <ul>
+    <div class="matches-container">
         {% for match in matches %}
-            {% if match.info %}
-                <li>
-                    <h3>Match ID: {{ match.metadata.matchId }}</h3>
-                    <p>Game Duration: {{ match.info.gameDuration }} seconds</p>
-                    <p>Queue Type: {{ match.info.queueId }}</p>
-                    <ul>
+            <div class="match-card">
+                {% if match.info %}
+                    <div class="match-details">
                         {% for participant in match.info.participants %}
                             {% if participant.puuid == summoner.puuid %}
-                                <li>
-                                    Champion: {{ participant.championName }}<br>
-                                    KDA: {{ participant.kills }}/{{ participant.deaths }}/{{ participant.assists }}<br>
-                                    Damage Dealt: {{ participant.totalDamageDealtToChampions }}
-                                </li>
+                                <div class="match-header">
+                                    <div class="champion-info">
+                                        <img 
+                                            class="champion-icon" 
+                                            src="https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/{{ participant.championName }}.png" 
+                                            alt="{{ participant.championName }}"
+                                        >
+                                        <h3>{{ participant.championName }}</h3>
+                                    </div>
+                                    <p class="game-duration">
+                                        {{ match.info.gameDuration|divisibleby:60 }}:{{ match.info.gameDuration|modulo:60|stringformat:"02d" }}
+                                    </p>
+                                </div>
+                                <div class="participant-stats">
+                                    <p class="kda">KDA: {{ participant.kills }}/{{ participant.deaths }}/{{ participant.assists }}</p>
+                                    <p>Damage: {{ participant.totalDamageDealtToChampions }}</p>
+                                </div>
                             {% endif %}
                         {% endfor %}
-                    </ul>
-                </li>
-            {% endif %}
+                    </div>
+                {% endif %}
+            </div>
         {% endfor %}
-    </ul>
+    </div>
 {% else %}
     <p>No matches found.</p>
 {% endif %}
 
-{% if error %}
-    <p class="error">{{ error }}</p>
-{% endif %}
+<a href="{% url 'analyze_matches' %}" class="button">Search Another Player</a>
+{% endblock %}
