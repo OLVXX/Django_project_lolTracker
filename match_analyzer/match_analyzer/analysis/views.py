@@ -1,11 +1,13 @@
+import json
 from django.shortcuts import render
 from .forms import SummonerForm
 import requests
 from urllib.parse import quote
 from time import sleep
 from requests.exceptions import RequestException
+from django.http import JsonResponse
 
-API_KEY = 'RGAPI-ea6d33a4-9e14-4c5c-bb5c-839e32b0c86d'
+API_KEY = 'RGAPI-5461c597-5d1d-41c4-91a9-917cca72afa7'
 MAX_RETRIES = 3
 RETRY_DELAY = 1  # seconds
 
@@ -44,22 +46,20 @@ def get_error_message(response):
     return f"HTTP {response.status_code}"
 
 def get_riot_id_data(summoner_name, tag_line, region):
-    """Get account data using Riot ID (username#tagline)"""
+    """Get account data using Riot ID"""
     regional_endpoint = get_regional_endpoint(region)
     encoded_name = quote(summoner_name)
     encoded_tag = quote(tag_line)
     url = f'https://{regional_endpoint}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{encoded_name}/{encoded_tag}?api_key={API_KEY}'
-    print(f"Calling Account API: {url}")
     return make_request(url)
 
 def get_summoner_by_puuid(puuid, region):
     """Get summoner data using PUUID"""
     url = f'https://{region}.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/{puuid}?api_key={API_KEY}'
-    print(f"Calling Summoner API: {url}")
     return make_request(url)
 
 def get_regional_endpoint(region):
-    """Map region codes to regional routing values for Riot API v5"""
+    """Map region codes to regional routing values"""
     routing = {
         'euw1': 'europe',
         'eun1': 'europe',
@@ -74,14 +74,13 @@ def get_regional_endpoint(region):
     }
     return routing.get(region.lower())
 
-def get_match_history(puuid, region):
+def get_match_history(puuid, region, start=0, count=20):
     """Get match history using v5 endpoint"""
     regional_endpoint = get_regional_endpoint(region)
     if not regional_endpoint:
         raise ValueError(f"Invalid region: {region}")
     
-    url = f'https://{regional_endpoint}.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids?start=0&count=5&api_key={API_KEY}'
-    print(f"Calling Match History API: {url}")
+    url = f'https://{regional_endpoint}.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids?start={start}&count={count}&api_key={API_KEY}'
     return make_request(url)
 
 def get_match_details(match_id, region):
@@ -91,55 +90,96 @@ def get_match_details(match_id, region):
         raise ValueError(f"Invalid region: {region}")
     
     url = f'https://{regional_endpoint}.api.riotgames.com/lol/match/v5/matches/{match_id}?api_key={API_KEY}'
-    print(f"Calling Match Details API: {url}")
     return make_request(url)
+
+def process_match(match_id, puuid, region):
+    """Process a single match and return formatted data"""
+    match_detail = get_match_details(match_id, region)
+    participant = next(
+        p for p in match_detail['info']['participants'] 
+        if p['puuid'] == puuid
+    )
+    
+    return {
+        'gameId': match_id,
+        'champion': participant['championName'],
+        'kills': participant['kills'],
+        'deaths': participant['deaths'],
+        'assists': participant['assists'],
+        'cs': participant['totalMinionsKilled'] + participant['neutralMinionsKilled'],
+        'damage': participant['totalDamageDealtToChampions'],
+        'gold': participant['goldEarned'],
+        'win': participant['win'],
+        'gameDuration': match_detail['info']['gameDuration'] // 60,
+        'gameMode': match_detail['info']['gameMode']
+    }
 
 def analyze_matches(request):
     """Main view function for analyzing matches"""
     if request.method == 'POST':
         form = SummonerForm(request.POST)
         if form.is_valid():
-            summoner_name = form.cleaned_data['summoner_name']
-            region = form.cleaned_data['region']
-            
             try:
-                # Split Riot ID properly
-                name, tag = summoner_name.split('#', 1)
+                # Handle initial form submission
+                summoner_name, tag = form.cleaned_data['summoner_name'].split('#', 1)
+                region = form.cleaned_data['region']
                 
-                # Get Riot ID data first
-                account_data = get_riot_id_data(name, tag, region)
-                print("Account Data:", account_data)
-                
-                if 'puuid' not in account_data:
-                    raise Exception("Player not found")
-                
-                # Get summoner data using PUUID
+                # Get account and summoner data
+                account_data = get_riot_id_data(summoner_name, tag, region)
                 summoner_data = get_summoner_by_puuid(account_data['puuid'], region)
-                print("Summoner Data:", summoner_data)
                 
-                # Get match history
-                match_ids = get_match_history(account_data['puuid'], region)
-                print("Match IDs:", match_ids)
-                
-                matches = []
-                for match_id in match_ids[:5]:
+                # Handle AJAX requests for loading more matches
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                     try:
-                        match_detail = get_match_details(match_id, region)
-                        matches.append(match_detail)
+                        data = json.loads(request.body)
+                        puuid = data.get('puuid')
+                        start = data.get('start', 0)
+                        count = data.get('count', 5)
+
+                        match_ids = get_match_history(puuid, region, start=start, count=count)
+                        processed_matches = [
+                            process_match(match_id, puuid, region)
+                            for match_id in match_ids
+                        ]
+
+                        return JsonResponse({
+                            'matches': processed_matches,
+                            'has_more': len(match_ids) == count
+                        })
                     except Exception as e:
-                        print(f"Error fetching match {match_id}: {str(e)}")
-                        continue
+                        return JsonResponse({'error': str(e)}, status=400)
+
+                # Handle initial page load
+                match_count = int(request.GET.get('count', 5))
+                match_ids = get_match_history(account_data['puuid'], region, count=match_count)
+                processed_matches = [
+                    process_match(match_id, account_data['puuid'], region)
+                    for match_id in match_ids
+                ]
                 
-                return render(request, 'analysis/results.html', {
-                    'summoner': summoner_data,
-                    'matches': matches,
-                    'account': account_data
-                })
+                # Prepare context for template
+                context = {
+                    'summoner': {
+                        'name': account_data['gameName'],
+                        'level': summoner_data['summonerLevel'],
+                        'profileIconId': summoner_data['profileIconId']
+                    },
+                    'account': {
+                        'region': region,
+                        'tagLine': account_data['tagLine'],
+                        'puuid': account_data['puuid']
+                    },
+                    'matches': processed_matches,
+                    'current_count': len(processed_matches),
+                    'has_more': len(match_ids) == match_count
+                }
+                
+                return render(request, 'analysis/results.html', context)
                 
             except Exception as e:
                 error_msg = f"Error: {str(e)}"
-                print(error_msg)
                 return render(request, 'analysis/analyze.html', {'form': form, 'error': error_msg})
-    else:
-        form = SummonerForm()
+    
+    # GET request - show empty form
+    form = SummonerForm()
     return render(request, 'analysis/analyze.html', {'form': form})

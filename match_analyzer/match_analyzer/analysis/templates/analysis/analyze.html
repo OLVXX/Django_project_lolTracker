@@ -1,24 +1,63 @@
-<!-- analysis/templates/analysis/analyze.html -->
-{% extends 'analysis/base.html' %}
-
-{% block content %}
+{% extends 'analysis/base.html' %} {% block content %}
+<div class="background-decoration"></div>
 <div class="form-container">
-    <h1>Analyze Matches</h1>
-    {% if error %}
-        <div class="error-message">{{ error }}</div>
-    {% endif %}
-    <form method="post">
-        {% csrf_token %}
-        <div class="form-group">
-            <label for="{{ form.summoner_name.id_for_label }}">{{ form.summoner_name.label }}</label>
-            {{ form.summoner_name }}
-            <small>{{ form.summoner_name.help_text }}</small>
-        </div>
-        <div class="form-group">
-            <label for="{{ form.region.id_for_label }}">{{ form.region.label }}</label>
-            {{ form.region }}
-        </div>
-        <button type="submit">Analyze</button>
-    </form>
+  <h1>Match Analysis</h1>
+  {% if error %}
+  <div class="error-message">
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+    >
+      <circle cx="12" cy="12" r="10"></circle>
+      <line x1="12" y1="8" x2="12" y2="12"></line>
+      <line x1="12" y1="16" x2="12.01" y2="16"></line>
+    </svg>
+    {{ error }}
+  </div>
+  {% endif %}
+  <form method="post">
+    {% csrf_token %}
+    <div class="form-group">
+      <div class="input-container">
+        <input
+          type="text"
+          id="{{ form.summoner_name.id_for_label }}"
+          name="{{ form.summoner_name.name }}"
+          placeholder=" "
+          required
+        />
+        <label
+          class="floating-label"
+          for="{{ form.summoner_name.id_for_label }}"
+        >
+          Riot ID
+        </label>
+      </div>
+      <small>{{ form.summoner_name.help_text }}</small>
+    </div>
+
+    <div class="form-group">
+      <label for="{{ form.region.id_for_label }}">Region</label>
+      {{ form.region }}
+    </div>
+
+    <button type="submit">
+      Analyze Matches
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <path d="M5 12h14M12 5l7 7-7 7"></path>
+      </svg>
+    </button>
+  </form>
 </div>
 {% endblock %}
