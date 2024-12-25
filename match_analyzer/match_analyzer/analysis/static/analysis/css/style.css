@@ -10,15 +10,14 @@
   --victory-light: #00b894;
   --defeat-light: #ff7675;
 
-  /* Dark theme variables */
-  --bg-primary-dark: #1a1b1e;
-  --bg-secondary-dark: #2d2d2d;
-  --text-primary-dark: #e9ecef;
-  --text-secondary-dark: #ced4da;
-  --accent-dark: #a8a4ff;
-  --card-bg-dark: #2d2d2d;
-  --victory-dark: #00d68f;
-  --defeat-dark: #ff6b6b;
+  /* Dark theme variables - updated for better contrast */
+  --bg-primary-dark: #0f172a;
+  --bg-secondary-dark: #1e293b;
+  --text-primary-dark: #f8fafc;
+  --text-secondary-dark: #cbd5e1;
+  --accent-dark: #8b5cf6;
+  --card-bg-dark: #1e293b;
+  --card-hover-dark: #2d3748;
 }
 
 /* Default light theme */
@@ -93,8 +92,15 @@ body {
   border-radius: 16px;
   padding: 25px;
   margin-bottom: 20px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.match-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
 .match-card.victory {
@@ -526,7 +532,7 @@ button[type="submit"]:hover {
   display: inline-block;
   width: 20px;
   height: 20px;
-  border: 2px solid rgba(255,255,255,0.3);
+  border: 2px solid rgba(255, 255, 255, 0.3);
   border-radius: 50%;
   border-top-color: #fff;
   animation: spin 1s ease-in-out infinite;
@@ -534,5 +540,273 @@ button[type="submit"]:hover {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
+
+/* Champion recommendations styling */
+.champion-recommendation-card {
+  background: var(--card-bg);
+  border-radius: 24px;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+  backdrop-filter: blur(12px);
+}
+
+.champion-recommendation-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.champion-icon-large {
+  width: 100%;
+  height: 280px;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.champion-recommendation-card:hover .champion-icon-large {
+  transform: scale(1.1);
+}
+
+.champion-info-container {
+  padding: 24px;
+  background: linear-gradient(to top, var(--card-bg) 0%, rgba(0, 0, 0, 0) 100%);
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  color: var(--text-primary);
+}
+
+.champion-info-container h3 {
+  font-family: "Poppins", sans-serif;
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+  background: linear-gradient(45deg, var(--accent), #a78bfa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.champion-stats {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+.stat-tag {
+  background: var(--accent);
+  color: white;
+  padding: 6px 16px;
+  border-radius: 99px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(4px);
+}
+
+.stat-tag:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+.difficulty-meter {
+  margin-top: 20px;
+}
+
+.difficulty-bar {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.difficulty-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), #a78bfa);
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Add to head section of base.html */
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap");
+
+/* Update general styles */
+body {
+  font-family: "Inter", sans-serif;
+  /* ...existing body styles... */
+}
+
+/* Add modern scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--accent);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-dark);
+}
+
+/* KDA styling */
+.kda-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: "Inter", sans-serif;
+  margin: 10px 0;
+}
+
+.kda-number {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.kda-separator {
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+
+.kda-ratio {
+  background: var(--accent);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  margin-left: 10px;
+}
+
+/* Add modern champion card styles */
+.champion-card {
+  position: relative;
+  border-radius: 24px;
+  overflow: hidden;
+  background: var(--card-bg);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  height: 400px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.champion-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.champion-splash {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+}
+
+.champion-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.champion-card:hover .champion-image {
+  transform: scale(1.1);
+}
+
+.champion-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 70%;
+  background: linear-gradient(
+    to top,
+    var(--card-bg) 20%,
+    rgba(0, 0, 0, 0) 100%
+  );
+}
+
+.champion-content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 24px;
+  color: var(--text-primary);
+}
+
+.champion-name {
+  font-family: "Poppins", sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+  background: linear-gradient(45deg, var(--accent), #a78bfa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.role-tag {
+  background: var(--accent);
+  color: white;
+  padding: 6px 16px;
+  border-radius: 99px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.champion-tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 16px 0;
+}
+
+.tag {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+  padding: 4px 12px;
+  border-radius: 99px;
+  font-size: 0.85rem;
+  backdrop-filter: blur(4px);
+  transition: all 0.3s ease;
+}
+
+.tag:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.difficulty-wrapper {
+  margin-top: 16px;
+}
+
+.difficulty-label {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  display: block;
+}
+
+.difficulty-bar {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.difficulty-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), #a78bfa);
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ...rest of existing code... */
