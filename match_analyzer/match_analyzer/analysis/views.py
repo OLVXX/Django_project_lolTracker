@@ -6,10 +6,15 @@ from urllib.parse import quote
 from time import sleep
 from requests.exceptions import RequestException
 from django.http import JsonResponse
+from .services.champion_recommender import ChampionRecommender
+from .recommendations import get_champion_recommendations
 
-API_KEY = 'RGAPI-5461c597-5d1d-41c4-91a9-917cca72afa7'
+
+API_KEY = 'RGAPI-592be729-38f6-4143-b2e9-6938c285ec57'
 MAX_RETRIES = 3
 RETRY_DELAY = 1  # seconds
+BATCH_SIZE = 5  # Number of matches to process at once
+BATCH_DELAY = 1.2  # Delay between batches in seconds
 
 def make_request(url, max_retries=MAX_RETRIES):
     """Make API request with retries"""
@@ -114,6 +119,33 @@ def process_match(match_id, puuid, region):
         'gameMode': match_detail['info']['gameMode']
     }
 
+def process_matches_in_batches(match_ids, puuid, region):
+    """Process matches in batches to avoid rate limiting"""
+    processed_matches = []
+    
+    for i in range(0, len(match_ids), BATCH_SIZE):
+        batch = match_ids[i:i + BATCH_SIZE]
+        for match_id in batch:
+            try:
+                match_data = process_match(match_id, puuid, region)
+                processed_matches.append(match_data)
+            except Exception as e:
+                if "429" in str(e):  # Rate limit error
+                    print(f"Rate limit hit, waiting longer...")
+                    sleep(BATCH_DELAY * 2)  # Wait twice as long
+                    try:
+                        match_data = process_match(match_id, puuid, region)
+                        processed_matches.append(match_data)
+                    except:
+                        continue  # Skip this match if it still fails
+                else:
+                    print(f"Error processing match {match_id}: {e}")
+                    continue
+        
+        sleep(BATCH_DELAY)  # Wait between batches
+    
+    return processed_matches
+
 def analyze_matches(request):
     """Main view function for analyzing matches"""
     if request.method == 'POST':
@@ -134,7 +166,7 @@ def analyze_matches(request):
                         data = json.loads(request.body)
                         puuid = data.get('puuid')
                         start = data.get('start', 0)
-                        count = data.get('count', 5)
+                        count = data.get('count', 5)  # Reduced from 20 to 5 to prevent rate limit issues
 
                         match_ids = get_match_history(puuid, region, start=start, count=count)
                         processed_matches = [
@@ -150,7 +182,7 @@ def analyze_matches(request):
                         return JsonResponse({'error': str(e)}, status=400)
 
                 # Handle initial page load
-                match_count = int(request.GET.get('count', 5))
+                match_count = int(request.GET.get('count', 10))  # Reduced from 20 to 10
                 match_ids = get_match_history(account_data['puuid'], region, count=match_count)
                 processed_matches = [
                     process_match(match_id, account_data['puuid'], region)
@@ -183,3 +215,56 @@ def analyze_matches(request):
     # GET request - show empty form
     form = SummonerForm()
     return render(request, 'analysis/analyze.html', {'form': form})
+
+
+# Add this new view function
+def get_champion_recommendations(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            puuid = data.get('puuid')
+            region = data.get('region')
+            
+            # Get last 20 matches instead of 50 to reduce rate limiting
+            match_ids = get_match_history(puuid, region, count=20)
+            matches = process_matches_in_batches(match_ids, puuid, region)
+            
+            # Get recommendations
+            recommender = ChampionRecommender()
+            recommendations = recommender.get_recommendations(matches)
+            
+            return JsonResponse({
+                'recommendations': [
+                    {
+                        'name': champ.name,
+                        'role': champ.role,
+                        'difficulty': champ.difficulty,
+                        'playstyle': champ.playstyle_tags
+                    }
+                    for champ in recommendations
+                ]
+            })
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+
+def get_recommendations(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        puuid = data.get('puuid')
+        region = data.get('region')
+        
+        # Get recent matches
+        matches = get_match_history(puuid, region)
+        recommendations = get_champion_recommendations(matches)
+        
+        return JsonResponse({
+            'recommendations': [
+                {
+                    'name': champ.name,
+                    'role': champ.role,
+                    'difficulty': champ.difficulty,
+                    'playstyle': champ.playstyle_tags
+                } for champ in recommendations
+            ]
+        })
+    return JsonResponse({'error': 'Invalid request method'}, status=400)

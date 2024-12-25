@@ -16,104 +16,135 @@
   </div>
 </div>
 
-<!-- Stats Overview -->
-<div class="stats-overview">
-  <div class="chart-container">
-    <canvas id="performanceChart"></canvas>
-  </div>
-  <div class="chart-container">
-    <canvas id="csChart"></canvas>
-  </div>
-  <div class="chart-container">
-    <canvas id="damageChart"></canvas>
-  </div>
+<!-- Add tabs for match history and recommendations -->
+<div class="nav nav-tabs mb-3">
+  <button class="nav-link active" id="matches-tab" data-bs-toggle="tab" data-bs-target="#matches">Match History</button>
+  <button class="nav-link" id="recommendations-tab" data-bs-toggle="tab" data-bs-target="#recommendations">Champion Recommendations</button>
 </div>
 
-{% if matches %}
-<div class="matches-container">
-  {% for match in matches %}
-  <div
-    class="match-card {% if match.win %}victory{% else %}defeat{% endif %}"
-    onclick="showMatchDetails('{{ match.gameId }}')"
-  >
-    <div class="match-details">
-      <div class="match-header">
-        <div class="champion-info">
-          <img
-            class="champion-icon"
-            src="https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/{{ match.champion }}.png"
-            alt="{{ match.champion }}"
-          />
-          <h3>{{ match.champion }}</h3>
-        </div>
-        <div class="game-info">
-          <p class="game-mode">{{ match.gameMode }}</p>
-          <p class="game-duration">{{ match.gameDuration }} minutes</p>
-          <p class="game-result">
-            {% if match.win %}Victory{% else %}Defeat{% endif %}
-          </p>
-        </div>
+<div class="tab-content">
+  <!-- Matches tab -->
+  <div class="tab-pane fade show active" id="matches">
+    <!-- Stats Overview -->
+    <div class="stats-overview">
+      <div class="chart-container">
+        <canvas id="performanceChart"></canvas>
       </div>
-
-      <div class="participant-stats">
-        <div class="stat-group">
-          <p class="kda">
-            KDA: {{ match.kills }}/{{ match.deaths }}/{{ match.assists }}
-          </p>
-          <p class="kda-ratio">
-            KDA Ratio: {% kda_ratio match.kills match.assists match.deaths %}
-          </p>
-        </div>
-
-        <div class="stat-group">
-          <p>CS: {{ match.cs }}</p>
-          <p>
-            CS/min: {{ match.cs|divideby:match.gameDuration|floatformat:1 }}
-          </p>
-        </div>
-
-        <div class="stat-group">
-          <p>Damage: {{ match.damage|intcomma }}</p>
-          <p>Gold: {{ match.gold|intcomma }}</p>
-        </div>
+      <div class="chart-container">
+        <canvas id="csChart"></canvas>
+      </div>
+      <div class="chart-container">
+        <canvas id="damageChart"></canvas>
       </div>
     </div>
-  </div>
-  {% endfor %}
-</div>
 
-<!-- Match Details Modal -->
-<div id="matchModal" class="modal">
-  <div class="modal-content">
-    <span class="close">&times;</span>
-    <div id="matchDetailsContent"></div>
+    {% if matches %}
+    <div class="matches-container">
+      {% for match in matches %}
+      <div
+        class="match-card {% if match.win %}victory{% else %}defeat{% endif %}"
+        onclick="showMatchDetails('{{ match.gameId }}')"
+      >
+        <div class="match-details">
+          <div class="match-header">
+            <div class="champion-info">
+              <img
+                class="champion-icon"
+                src="https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/{{ match.champion }}.png"
+                alt="{{ match.champion }}"
+              />
+              <h3>{{ match.champion }}</h3>
+            </div>
+            <div class="game-info">
+              <p class="game-mode">{{ match.gameMode }}</p>
+              <p class="game-duration">{{ match.gameDuration }} minutes</p>
+              <p class="game-result">
+                {% if match.win %}Victory{% else %}Defeat{% endif %}
+              </p>
+            </div>
+          </div>
+
+          <div class="participant-stats">
+            <div class="stat-group">
+              <p class="kda">
+                KDA: {{ match.kills }}/{{ match.deaths }}/{{ match.assists }}
+              </p>
+              <p class="kda-ratio">
+                KDA Ratio: {% kda_ratio match.kills match.assists match.deaths %}
+              </p>
+            </div>
+
+            <div class="stat-group">
+              <p>CS: {{ match.cs }}</p>
+              <p>
+                CS/min: {{ match.cs|divideby:match.gameDuration|floatformat:1 }}
+              </p>
+            </div>
+
+            <div class="stat-group">
+              <p>Damage: {{ match.damage|intcomma }}</p>
+              <p>Gold: {{ match.gold|intcomma }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Match Details Modal -->
+    <div id="matchModal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <div id="matchDetailsContent"></div>
+      </div>
+    </div>
+
+    <!-- Load More Button -->
+    {% if has_more %}
+    <div
+      class="load-more-container"
+      {%
+      if
+      not
+      has_more
+      %}style="display: none;"
+      {%
+      endif
+      %}
+    >
+      <button
+        id="loadMoreBtn"
+        class="button-primary"
+        data-puuid="{{ account.puuid }}"
+        data-region="{{ account.region }}"
+        data-start="{{ matches|length }}"
+      >
+        Load More Matches
+      </button>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <p>No matches found.</p>
+    {% endif %}
+  </div>
+
+  <!-- Recommendations tab -->
+  <div class="tab-pane fade" id="recommendations">
+    <div id="recommendations-content">
+      <div class="text-center">
+        <button class="btn btn-primary" id="load-recommendations">Get Champion Recommendations</button>
+      </div>
+      <div id="loading-indicator" style="display: none;" class="text-center mt-3">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <p>Analyzing your matches... This may take a minute...</p>
+      </div>
+      <div id="recommendations-list" class="mt-3"></div>
+    </div>
   </div>
 </div>
-
-<!-- Load More Button -->
-{% if has_more %}
-<div
-  class="load-more-container"
-  {%
-  if
-  not
-  has_more
-  %}style="display: none;"
-  {%
-  endif
-  %}
->
-  <button
-    id="loadMoreBtn"
-    class="button-primary"
-    data-puuid="{{ account.puuid }}"
-    data-region="{{ account.region }}"
-    data-start="{{ matches|length }}"
-  >
-    Load More Matches
-  </button>
-</div>
-{% endif %}
 
 <!-- Charts Initialization -->
 <!-- Replace the existing chart initialization code -->
@@ -121,200 +152,314 @@
 {{ matches|json_script:"matches-data" }}
 <script>
   document.addEventListener("DOMContentLoaded", function () {
-    const matches = JSON.parse(
-      document.getElementById("matches-data").textContent
-    );
-    const isDarkMode =
-      document.documentElement.getAttribute("data-theme") === "dark";
-    const chartTextColor = isDarkMode ? "#e9ecef" : "#2d3436";
-    const chartGridColor = isDarkMode
-      ? "rgba(255, 255, 255, 0.1)"
-      : "rgba(0, 0, 0, 0.1)";
+    // Get CSRF token for AJAX requests
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
-    // Add the chartOptions object here
-    const chartOptions = {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        title: {
-          display: true,
-          text: "Chart Title",
-          color: chartTextColor,
-          font: { size: 16 },
-        },
-        legend: { display: false },
-      },
-      scales: {
-        y: {
-          beginAtZero: true,
-          grid: { color: chartGridColor },
-          ticks: { color: chartTextColor },
-        },
-        x: {
-          grid: { display: false },
-          ticks: { color: chartTextColor },
-        },
-      },
-    };
+    // Chart initialization
+    try {
+      const matches = JSON.parse(
+        document.getElementById("matches-data").textContent
+      );
+      const isDarkMode =
+        document.documentElement.getAttribute("data-theme") === "dark";
+      const chartTextColor = isDarkMode ? "#e9ecef" : "#2d3436";
+      const chartGridColor = isDarkMode
+        ? "rgba(255, 255, 255, 0.1)"
+        : "rgba(0, 0, 0, 0.1)";
 
-    // Then use it in your charts
-    // KDA Performance Chart
-    new Chart(document.getElementById("performanceChart"), {
-      type: "line",
-      data: {
-        labels: matches.map((_, i) => `Game ${i + 1}`),
-        datasets: [
-          {
-            label: "KDA Ratio",
-            data: matches.map((m) =>
-              m.deaths === 0
-                ? 10
-                : ((m.kills + m.assists) / m.deaths).toFixed(2)
-            ),
-            borderColor: "#6c5ce7",
-            backgroundColor: "rgba(108, 92, 231, 0.1)",
-            fill: true,
-            tension: 0.4,
-          },
-        ],
-      },
-      options: {
-        ...chartOptions,
+      // Add the chartOptions object here
+      const chartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
         plugins: {
-          ...chartOptions.plugins,
           title: {
-            ...chartOptions.plugins.title,
-            text: "KDA Performance",
+            display: true,
+            text: "Chart Title",
+            color: chartTextColor,
+            font: { size: 16 },
           },
-        },
-      },
-    });
-
-    // CS Performance Chart with the same options pattern
-    new Chart(document.getElementById("csChart"), {
-      type: "bar",
-      data: {
-        labels: matches.map((_, i) => `Game ${i + 1}`),
-        datasets: [
-          {
-            label: "CS per Minute",
-            data: matches.map((m) => (m.cs / m.gameDuration).toFixed(1)),
-            backgroundColor: "rgba(108, 92, 231, 0.5)",
-            borderColor: "#6c5ce7",
-            borderWidth: 1,
-          },
-        ],
-      },
-      options: {
-        ...chartOptions,
-        plugins: {
-          ...chartOptions.plugins,
-          title: {
-            ...chartOptions.plugins.title,
-            text: "CS Performance",
-          },
-        },
-      },
-    });
-
-    // Damage Chart with the same options pattern
-    new Chart(document.getElementById("damageChart"), {
-      type: "bar",
-      data: {
-        labels: matches.map((_, i) => `Game ${i + 1}`),
-        datasets: [
-          {
-            label: "Damage to Champions",
-            data: matches.map((m) => m.damage),
-            backgroundColor: "rgba(108, 92, 231, 0.5)",
-            borderColor: "#6c5ce7",
-            borderWidth: 1,
-          },
-        ],
-      },
-      options: {
-        ...chartOptions,
-        plugins: {
-          ...chartOptions.plugins,
-          title: {
-            ...chartOptions.plugins.title,
-            text: "Damage Dealt",
-          },
+          legend: { display: false },
         },
         scales: {
-          ...chartOptions.scales,
           y: {
-            ...chartOptions.scales.y,
-            ticks: {
-              ...chartOptions.scales.y.ticks,
-              callback: (value) => value.toLocaleString(),
+            beginAtZero: true,
+            grid: { color: chartGridColor },
+            ticks: { color: chartTextColor },
+          },
+          x: {
+            grid: { display: false },
+            ticks: { color: chartTextColor },
+          },
+        },
+      };
+
+      // Then use it in your charts
+      // KDA Performance Chart
+      new Chart(document.getElementById("performanceChart"), {
+        type: "line",
+        data: {
+          labels: matches.map((_, i) => `Game ${i + 1}`),
+          datasets: [
+            {
+              label: "KDA Ratio",
+              data: matches.map((m) =>
+                m.deaths === 0
+                  ? 10
+                  : ((m.kills + m.assists) / m.deaths).toFixed(2)
+              ),
+              borderColor: "#6c5ce7",
+              backgroundColor: "rgba(108, 92, 231, 0.1)",
+              fill: true,
+              tension: 0.4,
+            },
+          ],
+        },
+        options: {
+          ...chartOptions,
+          plugins: {
+            ...chartOptions.plugins,
+            title: {
+              ...chartOptions.plugins.title,
+              text: "KDA Performance",
             },
           },
         },
-      },
-    });
-  });
-  // In results.html, replace the loadMoreBtn event listener with:
+      });
 
-  document
-    .getElementById("loadMoreBtn")
-    .addEventListener("click", async function () {
-      const btn = this;
-      const start = parseInt(btn.dataset.start);
-      const puuid = btn.dataset.puuid;
-      const region = btn.dataset.region;
-
-      btn.disabled = true;
-      btn.textContent = "Loading...";
-
-      try {
-        const response = await fetch(window.location.pathname, {
-          method: "POST",
-          headers: {
-            "X-Requested-With": "XMLHttpRequest",
-            "Content-Type": "application/json",
-            "X-CSRFToken": getCookie("csrftoken"),
+      // CS Performance Chart with the same options pattern
+      new Chart(document.getElementById("csChart"), {
+        type: "bar",
+        data: {
+          labels: matches.map((_, i) => `Game ${i + 1}`),
+          datasets: [
+            {
+              label: "CS per Minute",
+              data: matches.map((m) => (m.cs / m.gameDuration).toFixed(1)),
+              backgroundColor: "rgba(108, 92, 231, 0.5)",
+              borderColor: "#6c5ce7",
+              borderWidth: 1,
+            },
+          ],
+        },
+        options: {
+          ...chartOptions,
+          plugins: {
+            ...chartOptions.plugins,
+            title: {
+              ...chartOptions.plugins.title,
+              text: "CS Performance",
+            },
           },
-          body: JSON.stringify({
-            start: start,
-            puuid: puuid,
-            region: region,
-            count: 5,
-          }),
-        });
+        },
+      });
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+      // Damage Chart with the same options pattern
+      new Chart(document.getElementById("damageChart"), {
+        type: "bar",
+        data: {
+          labels: matches.map((_, i) => `Game ${i + 1}`),
+          datasets: [
+            {
+              label: "Damage to Champions",
+              data: matches.map((m) => m.damage),
+              backgroundColor: "rgba(108, 92, 231, 0.5)",
+              borderColor: "#6c5ce7",
+              borderWidth: 1,
+            },
+          ],
+        },
+        options: {
+          ...chartOptions,
+          plugins: {
+            ...chartOptions.plugins,
+            title: {
+              ...chartOptions.plugins.title,
+              text: "Damage Dealt",
+            },
+          },
+          scales: {
+            ...chartOptions.scales,
+            y: {
+              ...chartOptions.scales.y,
+              ticks: {
+                ...chartOptions.scales.y.ticks,
+                callback: (value) => value.toLocaleString(),
+              },
+            },
+          },
+        },
+      });
+    } catch (error) {
+      console.error("Error initializing charts:", error);
+    }
+
+    // Match Details Modal functionality
+    const modal = document.getElementById("matchModal");
+    const span = document.getElementsByClassName("close")[0];
+
+    // Show match details function
+    function showMatchDetails(matchId) {
+      modal.style.display = "block";
+      fetch(`/analysis/match/${matchId}/`, {
+        headers: {
+          'X-CSRFToken': csrfToken,
+          'X-Requested-With': 'XMLHttpRequest'
         }
+      })
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById("matchDetailsContent").innerHTML = data.html;
+      })
+      .catch(error => {
+        console.error("Error fetching match details:", error);
+      });
+    }
 
-        const data = await response.json();
+    // Close modal when clicking (x)
+    span.onclick = function() {
+      modal.style.display = "none";
+    }
 
-        if (data.error) {
-          throw new Error(data.error);
-        }
-
-        // Add new matches to the container
-        const matchesContainer = document.querySelector(".matches-container");
-        data.matches.forEach((match) => {
-          const matchElement = createMatchElement(match);
-          matchesContainer.appendChild(matchElement);
-        });
-
-        // Update button state
-        btn.dataset.start = parseInt(btn.dataset.start) + data.matches.length;
-        if (!data.has_more) {
-          btn.parentElement.style.display = "none";
-        }
-      } catch (error) {
-        console.error("Error loading more matches:", error);
-        alert("Error loading more matches. Please try again.");
-      } finally {
-        btn.disabled = false;
-        btn.textContent = "Load More Matches";
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+      if (event.target == modal) {
+        modal.style.display = "none";
       }
-    });
+    }
 
-  // Add this function to handle CSRF token
+    // Attach showMatchDetails to window for onclick handlers
+    window.showMatchDetails = showMatchDetails;
+
+    // Load More functionality
+    const loadMoreBtn = document.getElementById("loadMoreBtn");
+    if (loadMoreBtn) {
+      loadMoreBtn.addEventListener("click", async function () {
+        const btn = this;
+        const start = parseInt(btn.dataset.start);
+        const puuid = btn.dataset.puuid;
+        const region = btn.dataset.region;
+
+        btn.disabled = true;
+        btn.textContent = "Loading...";
+
+        try {
+          const response = await fetch(window.location.pathname, {
+            method: "POST",
+            headers: {
+              "X-Requested-With": "XMLHttpRequest",
+              "Content-Type": "application/json",
+              "X-CSRFToken": getCookie("csrftoken"),
+            },
+            body: JSON.stringify({
+              start: start,
+              puuid: puuid,
+              region: region,
+              count: 5,
+            }),
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const data = await response.json();
+
+          if (data.error) {
+            throw new Error(data.error);
+          }
+
+          // Add new matches to the container
+          const matchesContainer = document.querySelector(".matches-container");
+          data.matches.forEach((match) => {
+            const matchElement = createMatchElement(match);
+            matchesContainer.appendChild(matchElement);
+          });
+
+          // Update button state
+          btn.dataset.start = parseInt(btn.dataset.start) + data.matches.length;
+          if (!data.has_more) {
+            btn.parentElement.style.display = "none";
+          }
+        } catch (error) {
+          console.error("Error loading more matches:", error);
+          alert("Error loading more matches. Please try again.");
+        } finally {
+          btn.disabled = false;
+          btn.textContent = "Load More Matches";
+        }
+      });
+    }
+
+    // Recommendations functionality
+    const loadRecommendationsBtn = document.getElementById('load-recommendations');
+    if (loadRecommendationsBtn) {
+      loadRecommendationsBtn.addEventListener('click', function() {
+        const loadingIndicator = document.getElementById('loading-indicator');
+        const recommendationsDiv = document.getElementById('recommendations-list');
+        const button = this;
+        
+        // Clear previous results and show loading
+        button.disabled = true;
+        loadingIndicator.style.display = 'block';
+        recommendationsDiv.innerHTML = '';
+
+        fetch('/analysis/recommendations/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                puuid: '{{ account.puuid }}',
+                region: '{{ account.region }}'
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            loadingIndicator.style.display = 'none';
+            button.disabled = false;
+            
+            if (data.recommendations && data.recommendations.length > 0) {
+                let html = '<div class="row">';
+                data.recommendations.forEach(champ => {
+                    html += `
+                        <div class="col-md-4 mb-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">${champ.name}</h5>
+                                    <p class="card-text">
+                                        <strong>Role:</strong> ${champ.role}<br>
+                                        <strong>Difficulty:</strong> ${champ.difficulty}/10<br>
+                                        <strong>Playstyle:</strong> ${Array.isArray(champ.playstyle) ? champ.playstyle.join(', ') : champ.playstyle}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                recommendationsDiv.innerHTML = html;
+            } else {
+                recommendationsDiv.innerHTML = '<div class="alert alert-info">No recommendations found. Try playing more matches with different champions.</div>';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            loadingIndicator.style.display = 'none';
+            button.disabled = false;
+            recommendationsDiv.innerHTML = 
+                `<div class="alert alert-danger">Error loading recommendations: ${error.message}</div>`;
+        });
+    });
+    }
+  });
+
+  // Helper function for CSRF token
   function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== "") {
@@ -329,6 +474,7 @@
     }
     return cookieValue;
   }
+
   function createMatchElement(match) {
     // Create match card HTML structure
     const div = document.createElement("div");
@@ -387,9 +533,8 @@
   }
 </script>
 
-{% else %}
-<p>No matches found.</p>
-{% endif %}
+<!-- Add CSRF token for AJAX requests -->
+{% csrf_token %}
 
 <div class="button-container">
   <a href="{% url 'analyze_matches' %}" class="button">Search Another Player</a>
