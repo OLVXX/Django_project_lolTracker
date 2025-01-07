@@ -10,7 +10,7 @@ from .services.champion_recommender import ChampionRecommender
 from .recommendations import get_champion_recommendations
 
 
-API_KEY = 'RGAPI-9dbf1bdd-c2c7-4efb-b3b4-d9b4f205e192'
+API_KEY = 'RGAPI-ac0f8e89-f13c-4f62-8dca-eff825ce05cc'
 MAX_RETRIES = 3
 RETRY_DELAY = 1  # seconds
 BATCH_SIZE = 5  # Number of matches to process at once
