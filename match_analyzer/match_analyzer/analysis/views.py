@@ -8,9 +8,45 @@ from requests.exceptions import RequestException
 from django.http import JsonResponse
 from .services.champion_recommender import ChampionRecommender
 from .recommendations import get_champion_recommendations
+from django.shortcuts import render, redirect
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import login, logout
+from django.contrib.auth.views import LoginView
+from django.urls import reverse_lazy
 
+from django.shortcuts import render, redirect
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib import messages
 
-API_KEY = 'RGAPI-ac0f8e89-f13c-4f62-8dca-eff825ce05cc'
+class CustomLoginView(LoginView):
+    template_name = 'analysis/login.html'
+    redirect_authenticated_user = True
+    
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, f'Welcome back, {self.request.user.username}!')
+        return response
+    
+    def get_success_url(self):
+        return reverse_lazy('analyze_matches')
+
+def register(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)  # Log the user in after registration
+            messages.success(request, f'Account created successfully! Welcome, {user.username}!')
+            return redirect('analyze_matches')
+        else:
+            messages.error(request, 'There was an error with your registration. Please check the form.')
+    else:
+        form = UserCreationForm()
+    return render(request, 'analysis/register.html', {'form': form})
+
+API_KEY = 'RGAPI-35673f62-6289-4eb8-a951-54c9507a730e'
 MAX_RETRIES = 3
 RETRY_DELAY = 1  # seconds
 BATCH_SIZE = 5  # Number of matches to process at once
@@ -146,6 +182,7 @@ def process_matches_in_batches(match_ids, puuid, region):
     
     return processed_matches
 
+@login_required
 def analyze_matches(request):
     """Main view function for analyzing matches"""
     if request.method == 'POST':
@@ -216,6 +253,13 @@ def analyze_matches(request):
     form = SummonerForm()
     return render(request, 'analysis/analyze.html', {'form': form})
 
+@login_required
+def logout_view(request):
+    if request.method == 'POST':
+        logout(request)
+        messages.success(request, 'You have been successfully logged out.')
+        return redirect('home')
+    return redirect('home')
 
 # Add this new view function
 def get_champion_recommendations(request):
@@ -268,3 +312,8 @@ def get_recommendations(request):
             ]
         })
     return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+def home(request):
+    if request.user.is_authenticated:
+        return redirect('analyze_matches')
+    return render(request, 'analysis/home.html')

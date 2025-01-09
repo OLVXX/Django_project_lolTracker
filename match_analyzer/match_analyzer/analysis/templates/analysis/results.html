@@ -1,5 +1,36 @@
 {% extends 'analysis/base.html' %} {% load match_filters %} {% load static %}
 {%block content %}
+<div class="search-and-profile-container">
+    <div class="search-bar-container">
+        <form method="post" class="search-form">
+            {% csrf_token %}
+            {{ form }}
+            <button type="submit" class="search-button">Search</button>
+        </form>
+    </div>
+    
+    <div class="user-profile-dropdown">
+        <button class="profile-button">
+            <span class="username">{{ user.username }}</span>
+            <span class="dropdown-arrow">▼</span>
+        </button>
+        <div class="dropdown-content">
+            <a href="{% url 'analyze_matches' %}" class="dropdown-item">
+                <span class="icon">🔍</span>
+                Search Player
+            </a>
+            <div class="dropdown-divider"></div>
+            <form action="{% url 'logout' %}" method="post" id="logout-form">
+                {% csrf_token %}
+                <button type="submit" class="dropdown-item">
+                    <span class="icon">🚪</span>
+                    Logout
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
 <div class="summoner-banner">
   <div class="summoner-profile">
     <img
