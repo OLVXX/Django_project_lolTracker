@@ -6,11 +6,10 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('analyze/', views.analyze_matches, name='analyze_matches'),
     path('recommendations/', views.get_champion_recommendations, name='get_recommendations'),
-    path('login/', views.CustomLoginView.as_view(), name='login'),  # Updated this line
+    path('login/', views.CustomLoginView.as_view(), name='login'), 
     path('register/', views.register, name='register'),
-    path('logout/', views.logout_view, name='logout'),  # Updated this line
+    path('logout/', views.logout_view, name='logout'), 
     
-    # Password Reset URLs
     path('password_reset/', 
         auth_views.PasswordResetView.as_view(template_name='analysis/password_reset.html'),
         name='password_reset'),

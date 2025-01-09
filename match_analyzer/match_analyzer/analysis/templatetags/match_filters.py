@@ -1,4 +1,3 @@
-# analysis/templatetags/match_filters.py
 from django import template
 
 register = template.Library()
