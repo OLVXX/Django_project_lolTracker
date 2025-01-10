@@ -1,4 +1,5 @@
 import json
+import os
 from django.shortcuts import render
 from .forms import SummonerForm
 import requests
@@ -19,6 +20,14 @@ from django.urls import reverse_lazy
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
+from dotenv import load_dotenv
+from django.conf import settings
+
+load_dotenv()
+
+API_KEY = os.getenv('RIOT_API_KEY')
+if not API_KEY:
+    raise ValueError("RIOT_API_KEY environment variable is not set")
 
 class CustomLoginView(LoginView):
     template_name = 'analysis/login.html'
@@ -46,7 +55,6 @@ def register(request):
         form = UserCreationForm()
     return render(request, 'analysis/register.html', {'form': form})
 
-API_KEY = 'RGAPI-35673f62-6289-4eb8-a951-54c9507a730e'
 MAX_RETRIES = 3
 RETRY_DELAY = 1  # seconds
 BATCH_SIZE = 5  # Number of matches to process at once
@@ -166,19 +174,19 @@ def process_matches_in_batches(match_ids, puuid, region):
                 match_data = process_match(match_id, puuid, region)
                 processed_matches.append(match_data)
             except Exception as e:
-                if "429" in str(e): 
+                if "429" in str(e):  # Rate limit error
                     print(f"Rate limit hit, waiting longer...")
-                    sleep(BATCH_DELAY * 2) 
+                    sleep(BATCH_DELAY * 2)  
                     try:
                         match_data = process_match(match_id, puuid, region)
                         processed_matches.append(match_data)
                     except:
-                        continue  
+                        continue  # Skip this match if it still fails
                 else:
                     print(f"Error processing match {match_id}: {e}")
                     continue
         
-        sleep(BATCH_DELAY) 
+        sleep(BATCH_DELAY)  # Wait between batches
     
     return processed_matches
 
@@ -189,18 +197,21 @@ def analyze_matches(request):
         form = SummonerForm(request.POST)
         if form.is_valid():
             try:
+                # Handle initial form submission
                 summoner_name, tag = form.cleaned_data['summoner_name'].split('#', 1)
                 region = form.cleaned_data['region']
                 
+                # Get account and summoner data
                 account_data = get_riot_id_data(summoner_name, tag, region)
                 summoner_data = get_summoner_by_puuid(account_data['puuid'], region)
                 
+                # Handle AJAX requests for loading more matches
                 if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                     try:
                         data = json.loads(request.body)
                         puuid = data.get('puuid')
                         start = data.get('start', 0)
-                        count = data.get('count', 5) 
+                        count = data.get('count', 5)  
 
                         match_ids = get_match_history(puuid, region, start=start, count=count)
                         processed_matches = [
@@ -215,6 +226,7 @@ def analyze_matches(request):
                     except Exception as e:
                         return JsonResponse({'error': str(e)}, status=400)
 
+                # Handle initial page load
                 match_count = int(request.GET.get('count', 10)) 
                 match_ids = get_match_history(account_data['puuid'], region, count=match_count)
                 processed_matches = [
@@ -244,6 +256,7 @@ def analyze_matches(request):
                 error_msg = f"Error: {str(e)}"
                 return render(request, 'analysis/analyze.html', {'form': form, 'error': error_msg})
     
+    #show empty form
     form = SummonerForm()
     return render(request, 'analysis/analyze.html', {'form': form})
 
@@ -262,9 +275,11 @@ def get_champion_recommendations(request):
             puuid = data.get('puuid')
             region = data.get('region')
             
+            # Get last 20 matches
             match_ids = get_match_history(puuid, region, count=20)
             matches = process_matches_in_batches(match_ids, puuid, region)
             
+            # Get recommendations
             recommender = ChampionRecommender()
             recommendations = recommender.get_recommendations(matches)
             
@@ -288,6 +303,7 @@ def get_recommendations(request):
         puuid = data.get('puuid')
         region = data.get('region')
         
+        # Get recent matches
         matches = get_match_history(puuid, region)
         recommendations = get_champion_recommendations(matches)
         

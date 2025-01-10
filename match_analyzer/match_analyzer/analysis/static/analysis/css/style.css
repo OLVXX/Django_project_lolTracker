@@ -1,5 +1,6 @@
+/* analysis/static/analysis/css/style.css */
 :root {
-  
+  /* Light theme variables */
   --bg-primary-light: #ffffff;
   --bg-secondary-light: #f8f9fa;
   --text-primary-light: #2d3436;
@@ -9,6 +10,7 @@
   --victory-light: #00b894;
   --defeat-light: #ff7675;
 
+  /* Dark theme variables - updated for modern look */
   --bg-primary-dark: #1a1b26;
   --bg-secondary-dark: #24283b;
   --text-primary-dark: #c0caf5;
@@ -23,6 +25,7 @@
   --gradient-dark-2: rgba(99, 102, 241, 0.15);
 }
 
+/* Default light theme */
 :root {
   --bg-primary: var(--bg-primary-light);
   --bg-secondary: var(--bg-secondary-light);
@@ -34,7 +37,7 @@
   --defeat: var(--defeat-light);
 }
 
-
+/* Dark theme */
 [data-theme="dark"] {
   --bg-primary: var(--bg-primary-dark);
   --bg-secondary: var(--bg-secondary-dark);
@@ -45,6 +48,7 @@
   --victory: var(--victory-dark);
   --defeat: var(--defeat-dark);
 
+  /* New dark theme animations and effects */
   .match-card {
     border: 1px solid var(--border-dark);
     background: linear-gradient(
@@ -105,6 +109,7 @@
     box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
   }
 
+  /* Dark theme input styles */
   input,
   select {
     background: rgba(15, 23, 41, 0.6);
@@ -117,6 +122,7 @@
     box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
   }
 
+  /* Dark theme scrollbar */
   ::-webkit-scrollbar-track {
     background: var(--bg-primary-dark);
   }
@@ -130,6 +136,7 @@
     background: var(--gradient-dark-2);
   }
 
+  /* Updated results page background and container styles */
   .background-decoration {
     background: radial-gradient(
         circle at 0% 0%,
@@ -159,6 +166,7 @@
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
   }
 
+  /* Update summoner banner for better contrast */
   .summoner-banner {
     background: linear-gradient(
       135deg,
@@ -169,6 +177,7 @@
     backdrop-filter: blur(8px);
   }
 
+  /* Add subtle glow to content */
   .match-card,
   .chart-container,
   .stats-overview {
@@ -177,6 +186,7 @@
     border: 1px solid rgba(139, 92, 246, 0.1);
   }
 
+  /* Dark theme specific styles */
   .auth-card {
     background: var(--card-bg-dark);
   }
@@ -185,18 +195,21 @@
     background: rgba(0, 0, 0, 0.2);
   }
 
+  /* Dark theme specific styles */
   .search-and-profile-container {
     background: var(--card-bg-dark);
     border-color: rgba(255, 255, 255, 0.05);
   }
 }
 
+/* Add glow effect to dark theme elements */
 [data-theme="dark"] .champion-card:hover,
 [data-theme="dark"] .match-card:hover {
   box-shadow: 0 8px 32px rgba(139, 92, 246, 0.25);
   animation: glowPulse 2s infinite;
 }
 
+/* Add smooth transitions for theme switching */
 body,
 .match-card,
 .chart-container,
@@ -205,6 +218,7 @@ body,
   transition: all 0.3s ease-in-out;
 }
 
+/* New animations */
 @keyframes glowPulse {
   0% {
     box-shadow: 0 8px 32px rgba(139, 92, 246, 0.25);
@@ -217,6 +231,7 @@ body,
   }
 }
 
+/* Add this for dark theme background with subtle pattern */
 [data-theme="dark"] .background-decoration {
   background: radial-gradient(
       circle at 10% 20%,
@@ -248,7 +263,7 @@ body {
   padding: 20px;
 }
 
-
+/* Theme toggle button */
 .theme-toggle {
   position: fixed;
   top: 20px;
@@ -353,7 +368,7 @@ body {
   color: var(--accent);
 }
 
-
+/* Responsive design */
 @media (max-width: 768px) {
   .match-header {
     grid-template-columns: 1fr;
@@ -367,7 +382,9 @@ body {
     grid-template-columns: 1fr;
   }
 }
+/* Add to style.css */
 
+/* Form container styling */
 .form-container {
   max-width: 480px;
   margin: 40px auto;
@@ -481,6 +498,7 @@ button[type="submit"]:hover {
   }
 }
 
+/* Add floating labels */
 .input-container {
   position: relative;
   margin-bottom: 20px;
@@ -505,6 +523,7 @@ button[type="submit"]:hover {
   color: var(--accent);
 }
 
+/* Background decoration */
 .background-decoration {
   position: fixed;
   top: 0;
@@ -524,6 +543,7 @@ button[type="submit"]:hover {
   pointer-events: none;
   z-index: -1;
 }
+/* Add to existing style.css */
 .stats-overview {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -559,7 +579,7 @@ button[type="submit"]:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(108, 92, 231, 0.2);
 }
-
+/* Add to style.css */
 .stats-container {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -685,7 +705,7 @@ button[type="submit"]:hover {
   width: 100% !important;
   height: 100% !important;
 }
-
+/* Add to your CSS */
 .load-more-container {
   text-align: center;
   margin: 20px 0;
@@ -728,7 +748,7 @@ button[type="submit"]:hover {
   }
 }
 
-
+/* Champion recommendations styling */
 .champion-recommendation-card {
   background: var(--card-bg);
   border-radius: 24px;
@@ -815,12 +835,16 @@ button[type="submit"]:hover {
   transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Add to head section of base.html */
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap");
 
+/* Update general styles */
 body {
   font-family: "Inter", sans-serif;
+  /* ...existing body styles... */
 }
 
+/* Add modern scrollbar */
 ::-webkit-scrollbar {
   width: 10px;
 }
@@ -838,7 +862,7 @@ body {
   background: var(--accent-dark);
 }
 
-
+/* KDA styling */
 .kda-container {
   display: flex;
   align-items: center;
@@ -867,6 +891,7 @@ body {
   margin-left: 10px;
 }
 
+/* Add modern champion card styles */
 .champion-card {
   position: relative;
   border-radius: 24px;
@@ -987,6 +1012,7 @@ body {
   transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Add new ambient animation */
 @keyframes ambientGlow {
   0%,
   100% {
@@ -1002,6 +1028,9 @@ body {
   background-size: 200% 200%;
 }
 
+/* ...rest of existing code... */
+
+/* Update dark theme background */
 [data-theme="dark"] .background-decoration {
   background: radial-gradient(
       circle at 0% 0%,
@@ -1057,6 +1086,7 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+/* Authentication Pages Styling */
 .auth-container {
     min-height: 100vh;
     display: flex;
@@ -1256,6 +1286,7 @@ body {
     color: var(--text-secondary);
 }
 
+/* Navigation styles */
 .nav-bar {
     position: fixed;
     top: 0;
@@ -1303,6 +1334,7 @@ body {
     color: var(--accent);
 }
 
+/* Home page styles */
 .home-container {
     min-height: 100vh;
     display: flex;
@@ -1353,6 +1385,7 @@ body {
     color: white;
 }
 
+/* User Profile Dropdown Styles */
 .user-profile-dropdown {
     position: relative;
     margin-left: 1rem;
@@ -1443,6 +1476,7 @@ body {
     margin: 4px 0;
 }
 
+/* Dark theme specific styles for dropdown */
 [data-theme="dark"] .dropdown-content {
     background: var(--card-bg-dark);
     border-color: rgba(255, 255, 255, 0.05);
@@ -1455,6 +1489,7 @@ body {
 [data-theme="dark"] .profile-button {
     background: linear-gradient(135deg, var(--accent-dark), rgba(139, 92, 246, 0.8));
 }
+
 
 .search-and-profile-container {
     display: flex;
@@ -1503,8 +1538,10 @@ body {
     color: var(--accent);
 }
 
+/* Dark theme specific styles */
 [data-theme="dark"] .search-and-profile-container {
     background: var(--card-bg-dark);
     border-color: rgba(255, 255, 255, 0.05);
 }
+
 

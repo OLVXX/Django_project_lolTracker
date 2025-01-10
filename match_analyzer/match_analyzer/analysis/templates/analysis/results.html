@@ -47,6 +47,7 @@
   </div>
 </div>
 
+<!-- Add tabs for match history and recommendations -->
 <div class="nav nav-tabs mb-3">
   <button
     class="nav-link active"
@@ -67,7 +68,9 @@
 </div>
 
 <div class="tab-content">
+  <!-- Matches tab -->
   <div class="tab-pane fade show active" id="matches">
+    <!-- Stats Overview -->
     <div class="stats-overview">
       <div class="chart-container">
         <canvas id="performanceChart"></canvas>
@@ -130,6 +133,7 @@
       {% endfor %}
     </div>
 
+    <!-- Match Details Modal -->
     <div id="matchModal" class="modal">
       <div class="modal-content">
         <span class="close">&times;</span>
@@ -137,6 +141,7 @@
       </div>
     </div>
 
+    <!-- Load More Button -->
     {% if has_more %}
     <div
       class="load-more-container"
@@ -164,6 +169,7 @@
     {% endif %}
   </div>
 
+  <!-- Recommendations tab -->
   <div class="tab-pane fade" id="recommendations">
     <div id="recommendations-content">
       <div class="text-center">
@@ -214,13 +220,18 @@
   </div>
 </div>
 
+<!-- Charts Initialization -->
+<!-- Replace the existing chart initialization code -->
+<!-- In results.html, replace the chart initialization section -->
 {{ matches|json_script:"matches-data" }}
 <script>
   document.addEventListener("DOMContentLoaded", function () {
+    // Get CSRF token for AJAX requests
     const csrfToken = document.querySelector(
       "[name=csrfmiddlewaretoken]"
     ).value;
 
+    // Chart initialization
     try {
       const matches = JSON.parse(
         document.getElementById("matches-data").textContent
@@ -232,6 +243,7 @@
         ? "rgba(255, 255, 255, 0.1)"
         : "rgba(0, 0, 0, 0.1)";
 
+      // Add the chartOptions object here
       const chartOptions = {
         responsive: true,
         maintainAspectRatio: false,
@@ -257,6 +269,8 @@
         },
       };
 
+      // Then use it in your charts
+      // KDA Performance Chart
       new Chart(document.getElementById("performanceChart"), {
         type: "line",
         data: {
@@ -288,6 +302,7 @@
         },
       });
 
+      // CS Performance Chart with the same options pattern
       new Chart(document.getElementById("csChart"), {
         type: "bar",
         data: {
@@ -314,6 +329,7 @@
         },
       });
 
+      // Damage Chart with the same options pattern
       new Chart(document.getElementById("damageChart"), {
         type: "bar",
         data: {
@@ -353,9 +369,11 @@
       console.error("Error initializing charts:", error);
     }
 
+    // Match Details Modal functionality
     const modal = document.getElementById("matchModal");
     const span = document.getElementsByClassName("close")[0];
 
+    // Show match details function
     function showMatchDetails(matchId) {
       modal.style.display = "block";
       fetch(`/analysis/match/${matchId}/`, {
@@ -373,18 +391,22 @@
         });
     }
 
+    // Close modal when clicking (x)
     span.onclick = function () {
       modal.style.display = "none";
     };
 
+    // Close modal when clicking outside
     window.onclick = function (event) {
       if (event.target == modal) {
         modal.style.display = "none";
       }
     };
 
+    // Attach showMatchDetails to window for onclick handlers
     window.showMatchDetails = showMatchDetails;
 
+    // Load More functionality
     const loadMoreBtn = document.getElementById("loadMoreBtn");
     if (loadMoreBtn) {
       loadMoreBtn.addEventListener("click", async function () {
@@ -422,12 +444,14 @@
             throw new Error(data.error);
           }
 
+          // Add new matches to the container
           const matchesContainer = document.querySelector(".matches-container");
           data.matches.forEach((match) => {
             const matchElement = createMatchElement(match);
             matchesContainer.appendChild(matchElement);
           });
 
+          // Update button state
           btn.dataset.start = parseInt(btn.dataset.start) + data.matches.length;
           if (!data.has_more) {
             btn.parentElement.style.display = "none";
@@ -442,7 +466,7 @@
       });
     }
 
- 
+    // Recommendations functionality
     const loadRecommendationsBtn = document.getElementById(
       "load-recommendations"
     );
@@ -454,6 +478,7 @@
         );
         const button = this;
 
+        // Clear previous results and show loading
         button.disabled = true;
         loadingIndicator.style.display = "block";
         recommendationsDiv.innerHTML = "";
@@ -520,6 +545,7 @@
     }
   });
 
+  // Helper function for CSRF token
   function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== "") {
@@ -536,6 +562,7 @@
   }
 
   function createMatchElement(match) {
+    // Create match card HTML structure
     const div = document.createElement("div");
     div.className = `match-card ${match.win ? "victory" : "defeat"}`;
     div.innerHTML = `
@@ -587,9 +614,12 @@
   }
 
   function updateCharts(allMatches) {
+    // Update your existing charts with the new data
+    // Similar to your existing chart initialization code but with allMatches data
   }
 </script>
 
+<!-- Add CSRF token for AJAX requests -->
 {% csrf_token %}
 
 <div class="button-container">
