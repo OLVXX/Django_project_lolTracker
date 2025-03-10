@@ -13,7 +13,7 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'your-default-secret-key')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ['progg.onrender.com', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['progg.onrender.com', 'localhost', '127.0.0.1','progg-5rwt.onrender.com']
 CSRF_TRUSTED_ORIGINS = ['https://progg.onrender.com']
 
 # Make sure 'django.contrib.staticfiles' is in INSTALLED_APPS
