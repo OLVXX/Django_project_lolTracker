@@ -8,7 +8,7 @@ pwd
 echo "Directory contents:"
 ls -la
 
-# First upgrade pip
+# Upgrade pip first
 python -m pip install --upgrade pip
 
 # Install dependencies
@@ -19,9 +19,9 @@ mkdir -p staticfiles
 
 # Debug: Print directory structure
 echo "Full directory structure:"
-find . -type f -name "manage.py"
+ls -R
 
-# Run Django commands with the correct path
-cd match_analyzer
+# Run Django commands with absolute path
+cd /opt/render/project/src
 python manage.py collectstatic --no-input
 python manage.py migrate
