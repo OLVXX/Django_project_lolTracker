@@ -19,7 +19,6 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     '.onrender.com',  # Allows all subdomains on render.com
     'progg.onrender.com',
-    '*',  # Temporarily allow all hosts for testing
 ]
 
 CSRF_TRUSTED_ORIGINS = [

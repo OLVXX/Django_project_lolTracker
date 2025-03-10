@@ -25,7 +25,18 @@ SECRET_KEY = 'django-insecure-*!oavf=usc$qef7@a!ehs7)$o-4c&^3kf-l41uoer^iny9*a5d
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'progg-5rwt.onrender.com',
+    'localhost',
+    '127.0.0.1',
+    '.onrender.com',  # Allows all subdomains on render.com
+    'progg.onrender.com',
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://progg-5rwt.onrender.com',
+    'https://*.onrender.com',
+]
 
 
 # Application definition
