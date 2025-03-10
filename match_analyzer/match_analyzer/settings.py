@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'whitenoise.runserver_nostatic',  # Add whitenoise
-    'analysis.apps.AnalysisConfig',
+    'analysis',  # Change this line from 'analysis.apps.AnalysisConfig'
     'accounts',
 ]
 
