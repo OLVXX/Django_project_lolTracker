@@ -2,15 +2,19 @@
 # exit on error
 set -o errexit
 
-# Upgrade pip first
+# First upgrade pip
 python -m pip install --upgrade pip
 
 # Install dependencies
 pip install -r requirements.txt
 
-# Create static directory if it doesn't exist
+# Print current directory for debugging
+pwd
+ls -la
+
+# Create static directory
 mkdir -p staticfiles
 
-# Run Django commands
-python manage.py collectstatic --no-input --clear
-python manage.py migrate
+# Run Django commands with explicit path to manage.py
+python match_analyzer/manage.py collectstatic --no-input
+python match_analyzer/manage.py migrate
