@@ -16,7 +16,17 @@ DEBUG = os.getenv('DEBUG', 'False') == 'True'
 ALLOWED_HOSTS = ['progg.onrender.com', 'localhost', '127.0.0.1']
 CSRF_TRUSTED_ORIGINS = ['https://progg.onrender.com']
 
-# ...existing installed apps...
+# Make sure 'django.contrib.staticfiles' is in INSTALLED_APPS
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',  # Make sure this is present
+    'analysis.apps.AnalysisConfig',
+    'accounts',
+]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -35,12 +45,31 @@ DATABASES = {
 }
 
 # Static files (CSS, JavaScript, Images)
-STATIC_URL = 'static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_DIRS = [BASE_DIR / 'static']
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static')
+]
 
 # Whitenoise configuration
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Make sure Django knows where to find templates
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
 
 # API Keys
 RIOT_API_KEY = os.getenv('RIOT_API_KEY')
