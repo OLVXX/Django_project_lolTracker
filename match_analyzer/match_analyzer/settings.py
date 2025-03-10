@@ -12,18 +12,12 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-*!oavf=usc$qef7@a!ehs7)$o-4c&^3kf-l41uoer^iny9*a5d')
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'your-default-secret-key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG', 'True') == 'True'
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = [
-    'progg-5rwt.onrender.com',
-    'localhost',
-    '127.0.0.1',
-    '.onrender.com',  # Allows all subdomains on render.com
-    '*',  # For now, allow all hosts
-]
+ALLOWED_HOSTS = ['*']
 
 CSRF_TRUSTED_ORIGINS = [
     'https://progg-5rwt.onrender.com',
@@ -112,18 +106,18 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
-    os.path.join(BASE_DIR, 'analysis', 'static'),
 ]
 
 # Make sure static folder exists
 os.makedirs(os.path.join(BASE_DIR, 'static'), exist_ok=True)
 
+# Whitenoise settings
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Auth settings
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'analyze_matches'
-LOGOUT_REDIRECT_URL = 'login'
+LOGOUT_REDIRECT_URL = 'home'
 
 # API Keys
 RIOT_API_KEY = os.getenv('RIOT_API_KEY', '')
