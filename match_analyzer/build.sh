@@ -2,19 +2,26 @@
 # exit on error
 set -o errexit
 
+# Debug: Print current directory and contents
+echo "Current directory:"
+pwd
+echo "Directory contents:"
+ls -la
+
 # First upgrade pip
 python -m pip install --upgrade pip
 
 # Install dependencies
 pip install -r requirements.txt
 
-# Print current directory for debugging
-pwd
-ls -la
-
 # Create static directory
 mkdir -p staticfiles
 
-# Run Django commands with explicit path to manage.py
-python match_analyzer/manage.py collectstatic --no-input
-python match_analyzer/manage.py migrate
+# Debug: Print directory structure
+echo "Full directory structure:"
+find . -type f -name "manage.py"
+
+# Run Django commands with the correct path
+cd match_analyzer
+python manage.py collectstatic --no-input
+python manage.py migrate
