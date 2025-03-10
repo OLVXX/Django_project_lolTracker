@@ -1,0 +1,2 @@
+
+web: gunicorn match_analyzer.wsgi:application

@@ -13,6 +13,10 @@ python -m pip install --upgrade pip
 # Install dependencies
 pip install -r requirements.txt
 
+# Verify the Python module structure
+echo "Debugging Python modules:"
+python debug.py
+
 # Create static directories based on your repo structure
 mkdir -p static
 mkdir -p static/analysis/css
@@ -33,95 +37,20 @@ done
 if [ ! -f static/analysis/css/style.css ]; then
   echo "Creating CSS file in static directory"
   cat > static/analysis/css/style.css << 'EOL'
-/* Base styles */
+/* Basic styles */
 body {
-  font-family: "Inter", sans-serif;
+  font-family: 'Inter', sans-serif;
   margin: 0;
   padding: 0;
   background-color: #f8f9fa;
   color: #333;
-  line-height: 1.6;
 }
-
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-}
-
 .navbar {
   background-color: #6c5ce7;
   padding: 15px 0;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
-
-.nav-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
-}
-
-.nav-brand {
-  color: #ffffff;
-  font-size: 1.5rem;
-  font-weight: bold;
-  text-decoration: none;
-}
-
-.nav-items {
-  display: flex;
-  align-items: center;
-}
-
-.nav-button {
-  background-color: #a29bfe;
-  color: #ffffff;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
-  margin-left: 15px;
-  text-decoration: none;
-  cursor: pointer;
-  font-weight: 500;
-  transition: background-color 0.3s;
-}
-
-.nav-button:hover {
-  background-color: #8c7ae6;
-}
-
-/* Form styles */
-.form-container {
-  background-color: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  padding: 30px;
-  max-width: 500px;
-  margin: 30px auto;
-}
-
-.form-group {
-  margin-bottom: 20px;
-}
-
-.welcome-text {
-  color: #ffffff;
-  margin-right: 15px;
-}
-
-/* Basic responsive design */
-@media (max-width: 768px) {
-  .nav-content {
-    flex-direction: column;
-  }
-  
-  .nav-items {
-    margin-top: 15px;
-  }
-}
+/* ... more styles ... */
 EOL
 fi
 
@@ -131,6 +60,10 @@ find static -type f | sort
 echo "Static directory permissions:"
 ls -la static/analysis/css/
 
-# Run Django commands
-DJANGO_DEBUG=True python manage.py collectstatic --noinput
-python manage.py migrate
+# Run Django commands with debugging output
+PYTHONVERBOSE=1 python manage.py collectstatic --noinput --verbosity 3
+PYTHONVERBOSE=1 python manage.py migrate --verbosity 3
+
+# Debug WSGI file for render
+echo "WSGI file content:"
+cat match_analyzer/wsgi.py

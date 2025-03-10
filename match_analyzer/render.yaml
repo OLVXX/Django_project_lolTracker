@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: progg
+    runtime: python
+    buildCommand: ./build.sh
+    startCommand: gunicorn match_analyzer.wsgi:application
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.11
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: False
+      - key: WEB_CONCURRENCY
+        value: 4
