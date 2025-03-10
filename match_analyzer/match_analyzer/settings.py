@@ -106,10 +106,13 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
+    os.path.join(BASE_DIR, 'match_analyzer', 'static'),  # Add this line
+    os.path.join(BASE_DIR, 'match_analyzer', 'analysis', 'static'),  # Add this line
 ]
 
-# Make sure static folder exists
-os.makedirs(os.path.join(BASE_DIR, 'static'), exist_ok=True)
+# Make sure we don't throw errors if the directories don't exist
+for static_dir in STATICFILES_DIRS:
+    os.makedirs(static_dir, exist_ok=True)
 
 # Whitenoise settings
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'

@@ -13,14 +13,26 @@ python -m pip install --upgrade pip
 # Install dependencies
 pip install -r requirements.txt
 
-# Create static directories
+# Create static directories based on your repo structure
+mkdir -p static
 mkdir -p static/analysis/css
 mkdir -p staticfiles
 
-# Create CSS file directly in the static directory
-echo "Creating CSS file in static directory"
+# Debug: Check existing static files
+echo "Looking for existing CSS files:"
+find . -name "*.css" | grep -v "node_modules" | grep -v "venv"
 
-cat > static/analysis/css/style.css << 'EOL'
+# Copy any existing CSS files to the static directory
+for css_file in $(find . -path "*analysis*/static/*css/*.css" | grep -v "node_modules" | grep -v "venv"); do
+  echo "Copying CSS file: $css_file"
+  mkdir -p $(dirname static/${css_file#*/static/})
+  cp $css_file static/${css_file#*/static/}
+done
+
+# Create CSS file directly in the static directory if no CSS file exists
+if [ ! -f static/analysis/css/style.css ]; then
+  echo "Creating CSS file in static directory"
+  cat > static/analysis/css/style.css << 'EOL'
 /* Base styles */
 body {
   font-family: "Inter", sans-serif;
@@ -111,10 +123,14 @@ body {
   }
 }
 EOL
+fi
 
-echo "Static directory after content creation:"
-find static -type f -name "*.css" | xargs ls -la
+# Show static directory structure for debugging
+echo "Static directory structure:"
+find static -type f | sort
+echo "Static directory permissions:"
+ls -la static/analysis/css/
 
 # Run Django commands
-python manage.py collectstatic --noinput --clear
+DJANGO_DEBUG=True python manage.py collectstatic --noinput
 python manage.py migrate
