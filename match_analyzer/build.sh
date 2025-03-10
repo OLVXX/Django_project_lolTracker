@@ -22,6 +22,6 @@ echo "Full directory structure:"
 ls -R
 
 # Run Django commands with absolute path
-cd /opt/render/project/src/match_analyzer
+cd /opt/render/project/src/match_analyzer/match_analyzer
 python manage.py collectstatic --no-input
 python manage.py migrate
