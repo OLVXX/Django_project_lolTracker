@@ -109,8 +109,15 @@ STATICFILES_DIRS = [
 ]
 
 # Create static directories if they don't exist
+os.makedirs(STATIC_ROOT, exist_ok=True)
 for static_dir in STATICFILES_DIRS:
     os.makedirs(static_dir, exist_ok=True)
+
+# Ensure we can find static files
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+]
 
 # Whitenoise settings
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
