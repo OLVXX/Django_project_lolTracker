@@ -13,9 +13,9 @@ def setup_static_files():
         base_dir / 'static' / 'css',
         base_dir / 'static' / 'js',
         base_dir / 'static' / 'img',
-        base_dir / 'match_analyzer' / 'analysis' / 'static' / 'analysis' / 'css',
-        base_dir / 'match_analyzer' / 'analysis' / 'static' / 'analysis' / 'js',
-        base_dir / 'match_analyzer' / 'analysis' / 'static' / 'analysis' / 'img',
+        base_dir / 'analysis' / 'static' / 'analysis' / 'css',
+        base_dir / 'analysis' / 'static' / 'analysis' / 'js',
+        base_dir / 'analysis' / 'static' / 'analysis' / 'img',
     ]
 
     # Create directories
@@ -24,7 +24,7 @@ def setup_static_files():
         print(f"Created directory: {directory}")
 
     # Create default CSS file if it doesn't exist
-    css_file = base_dir / 'match_analyzer' / 'analysis' / 'static' / 'analysis' / 'css' / 'style.css'
+    css_file = base_dir / 'analysis' / 'static' / 'analysis' / 'css' / 'style.css'
     if not css_file.exists():
         with open(css_file, 'w') as f:
             f.write('/* Default styles for match analyzer */')
@@ -32,7 +32,7 @@ def setup_static_files():
     else:
         print(f"CSS file already exists: {css_file}")
 
-    # Copy static files if analysis/static exists
+    # Copy static files from analysis to main static directory
     analysis_static = base_dir / 'analysis' / 'static'
     if analysis_static.exists():
         target_dir = base_dir / 'static'
@@ -46,6 +46,23 @@ def setup_static_files():
                 # Copy the file
                 shutil.copy2(item, target_file)
                 print(f"Copied: {item} -> {target_file}")
+    
+    # Run Django's collectstatic
+    try:
+        import django
+        from django.conf import settings
+        from django.core.management import call_command
+        
+        if not settings.configured:
+            settings.configure()
+        
+        django.setup()
+        call_command('collectstatic', interactive=False, verbosity=1)
+        print("Django collectstatic completed successfully")
+    except ImportError:
+        print("Django not installed or not in PYTHONPATH, skipping collectstatic")
+    except Exception as e:
+        print(f"Error running collectstatic: {e}")
     
     print("Static directories setup completed successfully!")
 
