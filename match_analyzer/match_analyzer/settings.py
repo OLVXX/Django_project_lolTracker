@@ -106,9 +106,10 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
+    os.path.join(BASE_DIR, 'match_analyzer', 'static'),
 ]
 
-# Make sure we don't throw errors if the directories don't exist
+# Create static directories if they don't exist
 for static_dir in STATICFILES_DIRS:
     os.makedirs(static_dir, exist_ok=True)
 
